@@ -1,0 +1,96 @@
+import React from 'react';
+import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import Colors from '@/constants/colors';
+import { useData, MeetingEvent } from '@/lib/data-context';
+
+function EventItem({ item }: { item: MeetingEvent }) {
+  const isMeeting = item.type === 'meeting';
+  return (
+    <View style={styles.card}>
+      <View style={styles.dateBox}>
+        <Text style={styles.dateDay}>{item.date.split('-')[2]}</Text>
+        <Text style={styles.dateMonth}>{getMonthBn(item.date.split('-')[1])}</Text>
+      </View>
+      <View style={styles.cardContent}>
+        <View style={styles.typeBadge}>
+          <Ionicons name={isMeeting ? 'people' : 'calendar'} size={12} color={isMeeting ? Colors.info : '#8B5CF6'} />
+          <Text style={[styles.typeText, { color: isMeeting ? Colors.info : '#8B5CF6' }]}>
+            {isMeeting ? 'সভা' : 'ইভেন্ট'}
+          </Text>
+        </View>
+        <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.description}>{item.description}</Text>
+        <View style={styles.metaRow}>
+          <Ionicons name="time-outline" size={14} color={Colors.textTertiary} />
+          <Text style={styles.metaText}>{item.time}</Text>
+          <Ionicons name="location-outline" size={14} color={Colors.textTertiary} />
+          <Text style={styles.metaText}>{item.venue}</Text>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+function getMonthBn(m: string): string {
+  const months: Record<string, string> = {
+    '01': 'জানু', '02': 'ফেব্রু', '03': 'মার্চ', '04': 'এপ্রি',
+    '05': 'মে', '06': 'জুন', '07': 'জুলা', '08': 'আগ',
+    '09': 'সেপ্টে', '10': 'অক্টো', '11': 'নভে', '12': 'ডিসে',
+  };
+  return months[m] || m;
+}
+
+export default function EventsScreen() {
+  const { events } = useData();
+
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={events}
+        keyExtractor={item => item.id}
+        renderItem={({ item }) => <EventItem item={item} />}
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <View style={styles.emptyState}>
+            <Ionicons name="calendar-outline" size={48} color={Colors.textTertiary} />
+            <Text style={styles.emptyText}>কোনো ইভেন্ট নেই</Text>
+          </View>
+        }
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: Colors.background },
+  listContent: { padding: 20, paddingBottom: 40 },
+  card: {
+    flexDirection: 'row',
+    backgroundColor: Colors.white,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    gap: 14,
+  },
+  dateBox: {
+    width: 52, height: 52, borderRadius: 14,
+    backgroundColor: Colors.primaryLight,
+    justifyContent: 'center', alignItems: 'center',
+  },
+  dateDay: { fontSize: 20, fontFamily: 'NotoSansBengali_700Bold', color: Colors.primary },
+  dateMonth: { fontSize: 10, fontFamily: 'NotoSansBengali_500Medium', color: Colors.primaryDark },
+  cardContent: { flex: 1 },
+  typeBadge: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    alignSelf: 'flex-start', marginBottom: 4,
+  },
+  typeText: { fontSize: 11, fontFamily: 'NotoSansBengali_600SemiBold' },
+  title: { fontSize: 15, fontFamily: 'NotoSansBengali_600SemiBold', color: Colors.text, marginBottom: 2 },
+  description: { fontSize: 13, fontFamily: 'NotoSansBengali_400Regular', color: Colors.textSecondary, marginBottom: 6 },
+  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  metaText: { fontSize: 12, fontFamily: 'NotoSansBengali_400Regular', color: Colors.textTertiary, marginRight: 8 },
+  emptyState: { alignItems: 'center', paddingVertical: 60, gap: 12 },
+  emptyText: { fontSize: 14, fontFamily: 'NotoSansBengali_400Regular', color: Colors.textTertiary },
+});

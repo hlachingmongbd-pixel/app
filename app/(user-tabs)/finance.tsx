@@ -1,0 +1,209 @@
+import React from 'react';
+import { View, Text, ScrollView, StyleSheet, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import Colors from '@/constants/colors';
+import { useData } from '@/lib/data-context';
+
+function formatAmount(amount: number): string {
+  return '৳' + amount.toLocaleString('bn-BD');
+}
+
+function InfoRow({ label, value, color }: { label: string; value: string; color?: string }) {
+  return (
+    <View style={styles.infoRow}>
+      <Text style={styles.infoLabel}>{label}</Text>
+      <Text style={[styles.infoValue, color ? { color } : {}]}>{value}</Text>
+    </View>
+  );
+}
+
+export default function FinanceScreen() {
+  const insets = useSafeAreaInsets();
+  const { currentUser, loanApplications, settings } = useData();
+
+  if (!currentUser) return null;
+
+  const userLoans = loanApplications.filter(l => l.memberId === currentUser.id);
+  const activeLoans = userLoans.filter(l => l.status === 'approved');
+  const pendingLoans = userLoans.filter(l => l.status === 'pending');
+
+  return (
+    <View style={[styles.container, { paddingTop: insets.top + (Platform.OS === 'web' ? 67 : 0) }]}>
+      <Text style={styles.pageTitle}>আর্থিক তথ্য</Text>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <View style={[styles.cardIcon, { backgroundColor: '#EFF6FF' }]}>
+              <Ionicons name="layers" size={20} color="#3B82F6" />
+            </View>
+            <Text style={styles.cardTitle}>শেয়ার তথ্য</Text>
+          </View>
+          <View style={styles.cardBody}>
+            <InfoRow label="শেয়ার সংখ্যা" value={`${currentUser.shares} টি`} />
+            <InfoRow label="প্রতি শেয়ারের মূল্য" value={formatAmount(settings.sharePrice)} />
+            <InfoRow label="মোট শেয়ার মূল্য" value={formatAmount(currentUser.shares * settings.sharePrice)} color="#3B82F6" />
+          </View>
+        </View>
+
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <View style={[styles.cardIcon, { backgroundColor: '#ECFDF5' }]}>
+              <Ionicons name="wallet" size={20} color={Colors.success} />
+            </View>
+            <Text style={styles.cardTitle}>সঞ্চয়ের বিবরণ</Text>
+          </View>
+          <View style={styles.cardBody}>
+            <InfoRow label="মোট সঞ্চয়" value={formatAmount(currentUser.savings)} color={Colors.success} />
+            <InfoRow label="সুদের হার" value={`${settings.interestRate}%`} />
+            <InfoRow label="বার্ষিক সুদ (আনুমানিক)" value={formatAmount(Math.round(currentUser.savings * settings.interestRate / 100))} />
+          </View>
+        </View>
+
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <View style={[styles.cardIcon, { backgroundColor: '#FEF2F2' }]}>
+              <Ionicons name="trending-down" size={20} color={Colors.error} />
+            </View>
+            <Text style={styles.cardTitle}>চলমান ঋণ</Text>
+          </View>
+          <View style={styles.cardBody}>
+            {activeLoans.length === 0 ? (
+              <Text style={styles.noData}>কোনো চলমান ঋণ নেই</Text>
+            ) : (
+              activeLoans.map(loan => (
+                <View key={loan.id} style={styles.loanItem}>
+                  <InfoRow label="ঋণের উদ্দেশ্য" value={loan.purpose} />
+                  <InfoRow label="ঋণের পরিমাণ" value={formatAmount(loan.amount)} color={Colors.error} />
+                  <InfoRow label="মেয়াদ" value={`${loan.duration} মাস`} />
+                  <InfoRow label="মাসিক কিস্তি" value={formatAmount(loan.monthlyInstallment || 0)} />
+                  <InfoRow label="অনুমোদনের তারিখ" value={loan.approvedDate || '-'} />
+                  {loan !== activeLoans[activeLoans.length - 1] && <View style={styles.divider} />}
+                </View>
+              ))
+            )}
+          </View>
+        </View>
+
+        {pendingLoans.length > 0 && (
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <View style={[styles.cardIcon, { backgroundColor: '#FEF3C7' }]}>
+                <Ionicons name="time" size={20} color={Colors.warning} />
+              </View>
+              <Text style={styles.cardTitle}>অপেক্ষমাণ আবেদন</Text>
+            </View>
+            <View style={styles.cardBody}>
+              {pendingLoans.map(loan => (
+                <View key={loan.id} style={styles.loanItem}>
+                  <InfoRow label="উদ্দেশ্য" value={loan.purpose} />
+                  <InfoRow label="পরিমাণ" value={formatAmount(loan.amount)} />
+                  <InfoRow label="আবেদনের তারিখ" value={loan.appliedDate} />
+                  <View style={styles.statusBadge}>
+                    <Ionicons name="hourglass" size={14} color={Colors.warning} />
+                    <Text style={styles.statusText}>প্রক্রিয়াধীন</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <View style={[styles.cardIcon, { backgroundColor: '#FFFBEB' }]}>
+              <Ionicons name="gift" size={20} color={Colors.accent} />
+            </View>
+            <Text style={styles.cardTitle}>লভ্যাংশের তথ্য</Text>
+          </View>
+          <View style={styles.cardBody}>
+            <InfoRow label="সর্বশেষ লভ্যাংশ" value={formatAmount(currentUser.dividend)} color={Colors.accent} />
+            <InfoRow label="লভ্যাংশের হার" value={`${settings.interestRate}%`} />
+          </View>
+        </View>
+      </ScrollView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: Colors.background, paddingHorizontal: 20 },
+  pageTitle: {
+    fontSize: 22,
+    fontFamily: 'NotoSansBengali_700Bold',
+    color: Colors.text,
+    paddingVertical: 14,
+  },
+  card: {
+    backgroundColor: Colors.white,
+    borderRadius: 16,
+    marginBottom: 14,
+    overflow: 'hidden',
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    gap: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderLight,
+  },
+  cardIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontFamily: 'NotoSansBengali_600SemiBold',
+    color: Colors.text,
+  },
+  cardBody: { padding: 16 },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  infoLabel: {
+    fontSize: 14,
+    fontFamily: 'NotoSansBengali_400Regular',
+    color: Colors.textSecondary,
+  },
+  infoValue: {
+    fontSize: 14,
+    fontFamily: 'NotoSansBengali_600SemiBold',
+    color: Colors.text,
+  },
+  noData: {
+    fontSize: 14,
+    fontFamily: 'NotoSansBengali_400Regular',
+    color: Colors.textTertiary,
+    textAlign: 'center',
+    paddingVertical: 12,
+  },
+  loanItem: { marginBottom: 4 },
+  divider: {
+    height: 1,
+    backgroundColor: Colors.borderLight,
+    marginVertical: 8,
+  },
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    marginTop: 8,
+  },
+  statusText: {
+    fontSize: 12,
+    fontFamily: 'NotoSansBengali_500Medium',
+    color: Colors.warning,
+  },
+});
