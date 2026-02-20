@@ -24,7 +24,7 @@ function BalanceCard({ icon, label, amount, color, bg }: { icon: string; label: 
 
 export default function UserHomeScreen() {
   const insets = useSafeAreaInsets();
-  const { currentUser, notices, transactions, settings } = useData();
+  const { currentUser, notices, transactions, settings, t, language } = useData();
   const [refreshing, setRefreshing] = React.useState(false);
 
   if (!currentUser) return null;
@@ -39,15 +39,7 @@ export default function UserHomeScreen() {
   };
 
   const getTypeLabel = (type: string) => {
-    const labels: Record<string, string> = {
-      deposit: 'জমা',
-      withdrawal: 'উত্তোলন',
-      share: 'শেয়ার',
-      loan_disbursement: 'ঋণ গ্রহণ',
-      loan_repayment: 'ঋণ পরিশোধ',
-      dividend: 'লভ্যাংশ',
-    };
-    return labels[type] || type;
+    return t(type as any) || type;
   };
 
   const getTypeColor = (type: string) => {
@@ -60,7 +52,7 @@ export default function UserHomeScreen() {
     <View style={[styles.container, { paddingTop: insets.top + (Platform.OS === 'web' ? 67 : 0) }]}>
       <View style={styles.header}>
         <View>
-          <Text style={styles.greeting}>স্বাগতম,</Text>
+          <Text style={styles.greeting}>{t('welcome')}</Text>
           <Text style={styles.userName}>{currentUser.name}</Text>
         </View>
         <Pressable onPress={() => router.push('/profile')} style={styles.avatarButton}>
@@ -73,12 +65,12 @@ export default function UserHomeScreen() {
         contentContainerStyle={[styles.scrollContent, { paddingBottom: 100 }]}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />}
       >
-        <Text style={styles.sectionTitle}>আমার ব্যালেন্স</Text>
+        <Text style={styles.sectionTitle}>{t('myBalance')}</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.balanceRow}>
-          <BalanceCard icon="layers" label="শেয়ার" amount={currentUser.shares * settings.sharePrice} color="#3B82F6" bg="#EFF6FF" />
-          <BalanceCard icon="wallet" label="সঞ্চয়" amount={currentUser.savings} color={Colors.success} bg="#ECFDF5" />
-          <BalanceCard icon="trending-down" label="ঋণ" amount={currentUser.loanBalance} color={Colors.error} bg="#FEF2F2" />
-          <BalanceCard icon="gift" label="লভ্যাংশ" amount={currentUser.dividend} color={Colors.accent} bg="#FFFBEB" />
+          <BalanceCard icon="layers" label={t('shares')} amount={currentUser.shares * settings.sharePrice} color="#3B82F6" bg="#EFF6FF" />
+          <BalanceCard icon="wallet" label={t('savings')} amount={currentUser.savings} color={Colors.success} bg="#ECFDF5" />
+          <BalanceCard icon="trending-down" label={t('loans')} amount={currentUser.loanBalance} color={Colors.error} bg="#FEF2F2" />
+          <BalanceCard icon="gift" label={t('dividend')} amount={currentUser.dividend} color={Colors.accent} bg="#FFFBEB" />
         </ScrollView>
 
         <View style={styles.quickActions}>
@@ -86,25 +78,25 @@ export default function UserHomeScreen() {
             <View style={[styles.actionIcon, { backgroundColor: '#EFF6FF' }]}>
               <Ionicons name="document-text" size={22} color="#3B82F6" />
             </View>
-            <Text style={styles.actionLabel}>ঋণ আবেদন</Text>
+            <Text style={styles.actionLabel}>{t('loanApply')}</Text>
           </Pressable>
           <Pressable style={({ pressed }) => [styles.actionButton, pressed && { opacity: 0.7 }]} onPress={() => router.push('/notices')}>
             <View style={[styles.actionIcon, { backgroundColor: '#FEF3C7' }]}>
               <Ionicons name="megaphone" size={22} color={Colors.accent} />
             </View>
-            <Text style={styles.actionLabel}>নোটিশ</Text>
+            <Text style={styles.actionLabel}>{t('notice')}</Text>
           </Pressable>
           <Pressable style={({ pressed }) => [styles.actionButton, pressed && { opacity: 0.7 }]} onPress={() => router.push('/events')}>
             <View style={[styles.actionIcon, { backgroundColor: '#F3E8FF' }]}>
               <Ionicons name="calendar" size={22} color="#8B5CF6" />
             </View>
-            <Text style={styles.actionLabel}>ইভেন্ট</Text>
+            <Text style={styles.actionLabel}>{t('events')}</Text>
           </Pressable>
           <Pressable style={({ pressed }) => [styles.actionButton, pressed && { opacity: 0.7 }]} onPress={() => router.push('/support')}>
             <View style={[styles.actionIcon, { backgroundColor: '#ECFDF5' }]}>
               <Ionicons name="headset" size={22} color={Colors.success} />
             </View>
-            <Text style={styles.actionLabel}>সাপোর্ট</Text>
+            <Text style={styles.actionLabel}>{t('support')}</Text>
           </Pressable>
         </View>
 
@@ -112,7 +104,7 @@ export default function UserHomeScreen() {
           <View style={styles.urgentSection}>
             <View style={styles.urgentHeader}>
               <Ionicons name="alert-circle" size={18} color={Colors.error} />
-              <Text style={styles.urgentTitle}>জরুরী নোটিশ</Text>
+              <Text style={styles.urgentTitle}>{t('urgentNotice')}</Text>
             </View>
             {urgentNotices.map(n => (
               <View key={n.id} style={styles.urgentCard}>
@@ -124,13 +116,13 @@ export default function UserHomeScreen() {
         )}
 
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>সাম্প্রতিক লেনদেন</Text>
+          <Text style={styles.sectionTitle}>{t('recentTransactions')}</Text>
         </View>
 
         {userTransactions.length === 0 ? (
           <View style={styles.emptyState}>
             <Ionicons name="receipt-outline" size={40} color={Colors.textTertiary} />
-            <Text style={styles.emptyText}>কোনো লেনদেন নেই</Text>
+            <Text style={styles.emptyText}>{t('noTransactions')}</Text>
           </View>
         ) : (
           userTransactions.map(tx => (
@@ -159,9 +151,9 @@ export default function UserHomeScreen() {
         {recentNotices.length > 0 && (
           <>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>নোটিশ বোর্ড</Text>
+              <Text style={styles.sectionTitle}>{t('noticeBoard')}</Text>
               <Pressable onPress={() => router.push('/notices')}>
-                <Text style={styles.seeAll}>সব দেখুন</Text>
+                <Text style={styles.seeAll}>{t('seeAll')}</Text>
               </Pressable>
             </View>
             {recentNotices.map(n => (
@@ -175,7 +167,7 @@ export default function UserHomeScreen() {
                 </View>
                 {n.isUrgent && (
                   <View style={styles.urgentBadge}>
-                    <Text style={styles.urgentBadgeText}>জরুরী</Text>
+                    <Text style={styles.urgentBadgeText}>{t('urgent')}</Text>
                   </View>
                 )}
               </View>

@@ -10,7 +10,7 @@ import * as Haptics from 'expo-haptics';
 
 export default function LoginScreen() {
   const insets = useSafeAreaInsets();
-  const { login, currentUser, isAdmin, isLoading } = useData();
+  const { login, currentUser, isAdmin, isLoading, t, language, setLanguage } = useData();
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -29,7 +29,7 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!phone.trim() || !password.trim()) {
-      setError('ফোন নম্বর ও পাসওয়ার্ড দিন');
+      setError(t('errorMissing'));
       return;
     }
     setLogging(true);
@@ -39,11 +39,11 @@ export default function LoginScreen() {
       if (success) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       } else {
-        setError('ভুল ফোন নম্বর বা পাসওয়ার্ড');
+        setError(t('errorInvalid'));
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
     } catch {
-      setError('লগইন ব্যর্থ হয়েছে');
+      setError(t('errorLoginFailed'));
     } finally {
       setLogging(false);
     }
@@ -63,25 +63,32 @@ export default function LoginScreen() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         <LinearGradient colors={['#0D6B3F', '#094D2D', '#063520']} style={[styles.topSection, { paddingTop: insets.top + (Platform.OS === 'web' ? 67 : 0) + 40 }]}>
+          <Pressable
+            style={styles.langSwitch}
+            onPress={() => setLanguage(language === 'bn' ? 'en' : 'bn')}
+          >
+            <Text style={styles.langText}>{language === 'bn' ? '🇺🇸 ENG' : '🇧🇩 বাং'}</Text>
+          </Pressable>
+
           <View style={styles.logoContainer}>
             <View style={styles.logoCircle}>
               <Ionicons name="people" size={40} color={Colors.primary} />
             </View>
           </View>
-          <Text style={styles.appTitle}>মেত্তা বহুমুখী সমবায় সমিতি</Text>
-          <Text style={styles.appSubtitle}>সদস্য ও প্রশাসন ব্যবস্থাপনা</Text>
+          <Text style={styles.appTitle}>{t('appTitle')}</Text>
+          <Text style={styles.appSubtitle}>{t('appSubtitle')}</Text>
         </LinearGradient>
 
         <View style={[styles.formSection, { paddingBottom: insets.bottom + (Platform.OS === 'web' ? 34 : 0) + 20 }]}>
           <View style={styles.formCard}>
-            <Text style={styles.formTitle}>লগইন করুন</Text>
+            <Text style={styles.formTitle}>{t('loginTitle')}</Text>
 
             <View style={styles.inputGroup}>
               <View style={styles.inputWrapper}>
                 <Ionicons name="call-outline" size={20} color={Colors.textSecondary} style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
-                  placeholder="ফোন নম্বর"
+                  placeholder={t('phonePlaceholder')}
                   placeholderTextColor={Colors.textTertiary}
                   value={phone}
                   onChangeText={setPhone}
@@ -94,7 +101,7 @@ export default function LoginScreen() {
                 <Ionicons name="lock-closed-outline" size={20} color={Colors.textSecondary} style={styles.inputIcon} />
                 <TextInput
                   style={[styles.input, { flex: 1 }]}
-                  placeholder="পাসওয়ার্ড"
+                  placeholder={t('passwordPlaceholder')}
                   placeholderTextColor={Colors.textTertiary}
                   value={password}
                   onChangeText={setPassword}
@@ -121,14 +128,14 @@ export default function LoginScreen() {
               {logging ? (
                 <ActivityIndicator color={Colors.white} size="small" />
               ) : (
-                <Text style={styles.loginButtonText}>প্রবেশ করুন</Text>
+                <Text style={styles.loginButtonText}>{t('loginButton')}</Text>
               )}
             </Pressable>
 
             <View style={styles.demoInfo}>
-              <Text style={styles.demoTitle}>ডেমো অ্যাকাউন্ট:</Text>
-              <Text style={styles.demoText}>অ্যাডমিন: 01700000000 / admin123</Text>
-              <Text style={styles.demoText}>সদস্য: 01711111111 / 1234</Text>
+              <Text style={styles.demoTitle}>{t('demoAccount')}</Text>
+              <Text style={styles.demoText}>{t('admin')}: 01700000000 / admin123</Text>
+              <Text style={styles.demoText}>{t('member')}: 01711111111 / 123</Text>
             </View>
           </View>
         </View>
@@ -148,6 +155,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingBottom: 50,
     alignItems: 'center',
+    position: 'relative',
+  },
+  langSwitch: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+  },
+  langText: {
+    color: Colors.white,
+    fontSize: 12,
+    marginTop: 0,
+    fontFamily: 'NotoSansBengali_600SemiBold',
   },
   logoContainer: {
     marginBottom: 16,

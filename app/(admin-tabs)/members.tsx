@@ -7,7 +7,7 @@ import Colors from '@/constants/colors';
 import { useData, Member } from '@/lib/data-context';
 import * as Haptics from 'expo-haptics';
 
-function MemberItem({ member, onToggle }: { member: Member; onToggle: () => void }) {
+function MemberItem({ member, onToggle, t }: { member: Member; onToggle: () => void; t: any }) {
   return (
     <Pressable
       style={({ pressed }) => [styles.memberCard, pressed && { opacity: 0.85 }]}
@@ -29,7 +29,7 @@ function MemberItem({ member, onToggle }: { member: Member; onToggle: () => void
           }}
         >
           <Text style={[styles.statusText, member.isActive ? styles.activeText : styles.inactiveText]}>
-            {member.isActive ? 'সক্রিয়' : 'নিষ্ক্রিয়'}
+            {member.isActive ? t('active') : t('inactive')}
           </Text>
         </Pressable>
       </View>
@@ -39,23 +39,23 @@ function MemberItem({ member, onToggle }: { member: Member; onToggle: () => void
 
 export default function MembersScreen() {
   const insets = useSafeAreaInsets();
-  const { members, toggleMemberStatus } = useData();
+  const { members, toggleMemberStatus, t } = useData();
   const [search, setSearch] = useState('');
 
   const regularMembers = members.filter(m => m.role !== 'admin');
   const filtered = search.trim()
     ? regularMembers.filter(m =>
-        m.name.includes(search) || m.phone.includes(search) || m.id.includes(search)
-      )
+      m.name.includes(search) || m.phone.includes(search) || m.id.includes(search)
+    )
     : regularMembers;
 
   const handleToggle = (member: Member) => {
     Alert.alert(
-      member.isActive ? 'নিষ্ক্রিয় করুন' : 'সক্রিয় করুন',
-      `${member.name} কে ${member.isActive ? 'নিষ্ক্রিয়' : 'সক্রিয়'} করতে চান?`,
+      member.isActive ? t('deactivate') : t('activate'),
+      `${member.name} ${member.isActive ? t('deactivateConfirm') : t('activateConfirm')}`,
       [
-        { text: 'না', style: 'cancel' },
-        { text: 'হ্যাঁ', onPress: () => toggleMemberStatus(member.id) },
+        { text: t('no'), style: 'cancel' },
+        { text: t('yes'), onPress: () => toggleMemberStatus(member.id) },
       ]
     );
   };
@@ -63,7 +63,7 @@ export default function MembersScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top + (Platform.OS === 'web' ? 67 : 0) }]}>
       <View style={styles.header}>
-        <Text style={styles.pageTitle}>সদস্য ব্যবস্থাপনা</Text>
+        <Text style={styles.pageTitle}>{t('memberManagement')}</Text>
         <Pressable style={styles.addButton} onPress={() => router.push('/add-member')}>
           <Ionicons name="add" size={24} color={Colors.white} />
         </Pressable>
@@ -73,7 +73,7 @@ export default function MembersScreen() {
         <Ionicons name="search" size={18} color={Colors.textTertiary} />
         <TextInput
           style={styles.searchInput}
-          placeholder="সদস্য খুঁজুন..."
+          placeholder={t('searchMember')}
           placeholderTextColor={Colors.textTertiary}
           value={search}
           onChangeText={setSearch}
@@ -86,20 +86,20 @@ export default function MembersScreen() {
       </View>
 
       <View style={styles.countRow}>
-        <Text style={styles.countText}>মোট: {filtered.length} জন</Text>
-        <Text style={styles.countText}>সক্রিয়: {filtered.filter(m => m.isActive).length}</Text>
+        <Text style={styles.countText}>{t('total')}: {filtered.length} {t('person')}</Text>
+        <Text style={styles.countText}>{t('active')}: {filtered.filter(m => m.isActive).length}</Text>
       </View>
 
       <FlatList
         data={filtered}
         keyExtractor={item => item.id}
-        renderItem={({ item }) => <MemberItem member={item} onToggle={() => handleToggle(item)} />}
+        renderItem={({ item }) => <MemberItem member={item} onToggle={() => handleToggle(item)} t={t} />}
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <Ionicons name="people-outline" size={48} color={Colors.textTertiary} />
-            <Text style={styles.emptyText}>কোনো সদস্য পাওয়া যায়নি</Text>
+            <Text style={styles.emptyText}>{t('noMembersFound')}</Text>
           </View>
         }
       />

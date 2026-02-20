@@ -226,25 +226,29 @@ function setupErrorHandler(app: express.Application) {
 }
 
 (async () => {
-  setupCors(app);
-  setupBodyParsing(app);
-  setupRequestLogging(app);
+  try {
+    setupCors(app);
+    setupBodyParsing(app);
+    setupRequestLogging(app);
 
-  configureExpoAndLanding(app);
+    configureExpoAndLanding(app);
 
-  const server = await registerRoutes(app);
+    const server = await registerRoutes(app);
 
-  setupErrorHandler(app);
+    setupErrorHandler(app);
 
-  const port = parseInt(process.env.PORT || "5000", 10);
-  server.listen(
-    {
-      port,
-      host: "0.0.0.0",
-      reusePort: true,
-    },
-    () => {
-      log(`express server serving on port ${port}`);
-    },
-  );
+    const port = parseInt(process.env.PORT || "5000", 10);
+    server.listen(
+      {
+        port,
+        host: "0.0.0.0",
+      },
+      () => {
+        log(`express server serving on port ${port}`);
+      },
+    );
+  } catch (error) {
+    console.error("Failed to start server:", error);
+    process.exit(1);
+  }
 })();

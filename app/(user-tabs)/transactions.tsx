@@ -64,8 +64,17 @@ function TransactionItem({ item }: { item: Transaction }) {
 
 export default function TransactionsScreen() {
   const insets = useSafeAreaInsets();
-  const { currentUser, transactions } = useData();
+  const { currentUser, transactions, t } = useData();
   const [filter, setFilter] = useState('all');
+
+  // Move filters inside component to use t()
+  const FILTERS = [
+    { key: 'all', label: t('all') },
+    { key: 'deposit', label: t('deposit') },
+    { key: 'withdrawal', label: t('withdrawal') },
+    { key: 'share', label: t('share') },
+    { key: 'loan_repayment', label: t('loan_repayment') },
+  ];
 
   if (!currentUser) return null;
 
@@ -74,9 +83,9 @@ export default function TransactionsScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + (Platform.OS === 'web' ? 67 : 0) }]}>
-      <Text style={styles.pageTitle}>লেনদেন ইতিহাস</Text>
+      <Text style={styles.pageTitle}>{t('transactionHistory')}</Text>
 
-      <ScrollableFilters filter={filter} setFilter={setFilter} />
+      <ScrollableFilters filter={filter} setFilter={setFilter} filters={FILTERS} />
 
       <FlatList
         data={filtered}
@@ -87,7 +96,7 @@ export default function TransactionsScreen() {
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <Ionicons name="receipt-outline" size={48} color={Colors.textTertiary} />
-            <Text style={styles.emptyText}>কোনো লেনদেন পাওয়া যায়নি</Text>
+            <Text style={styles.emptyText}>{t('noTransactionsFound')}</Text>
           </View>
         }
       />
@@ -95,10 +104,10 @@ export default function TransactionsScreen() {
   );
 }
 
-function ScrollableFilters({ filter, setFilter }: { filter: string; setFilter: (f: string) => void }) {
+function ScrollableFilters({ filter, setFilter, filters }: { filter: string; setFilter: (f: string) => void; filters: any[] }) {
   return (
     <View style={styles.filterRow}>
-      {FILTERS.map(f => (
+      {filters.map(f => (
         <Pressable
           key={f.key}
           style={[styles.filterChip, filter === f.key && styles.filterChipActive]}

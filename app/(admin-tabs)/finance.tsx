@@ -13,17 +13,23 @@ function formatAmount(amount: number): string {
 
 export default function AdminFinanceScreen() {
   const insets = useSafeAreaInsets();
-  const { loanApplications, approveLoan, rejectLoan, transactions } = useData();
+  const { loanApplications, approveLoan, rejectLoan, transactions, members, t } = useData();
 
   const pendingLoans = loanApplications.filter(l => l.status === 'pending');
   const approvedLoans = loanApplications.filter(l => l.status === 'approved');
   const recentTx = transactions.slice(0, 10);
 
-  const handleApprove = (id: string, name: string) => {
-    Alert.alert('ঋণ অনুমোদন', `${name} এর ঋণ অনুমোদন করতে চান?`, [
-      { text: 'না', style: 'cancel' },
+  const getMemberName = (id: string) => {
+    const m = members.find(m => m.id === id);
+    return m ? m.name : id;
+  };
+
+  const handleApprove = (id: string, memberId: string) => {
+    const name = getMemberName(memberId);
+    Alert.alert(t('loanApproval'), `${name} ${t('approveConfirm')}`, [
+      { text: t('no'), style: 'cancel' },
       {
-        text: 'অনুমোদন',
+        text: t('approve'),
         onPress: async () => {
           await approveLoan(id);
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -32,11 +38,12 @@ export default function AdminFinanceScreen() {
     ]);
   };
 
-  const handleReject = (id: string, name: string) => {
-    Alert.alert('ঋণ প্রত্যাখ্যান', `${name} এর ঋণ প্রত্যাখ্যান করতে চান?`, [
-      { text: 'না', style: 'cancel' },
+  const handleReject = (id: string, memberId: string) => {
+    const name = getMemberName(memberId);
+    Alert.alert(t('loanRejection'), `${name} ${t('rejectConfirm')}`, [
+      { text: t('no'), style: 'cancel' },
       {
-        text: 'প্রত্যাখ্যান',
+        text: t('reject'),
         style: 'destructive',
         onPress: async () => {
           await rejectLoan(id);
@@ -46,10 +53,14 @@ export default function AdminFinanceScreen() {
     ]);
   };
 
+  const getLabel = (type: string) => {
+    return t(type as any) || type;
+  };
+
   return (
     <View style={[styles.container, { paddingTop: insets.top + (Platform.OS === 'web' ? 67 : 0) }]}>
       <View style={styles.header}>
-        <Text style={styles.pageTitle}>আর্থিক ব্যবস্থাপনা</Text>
+        <Text style={styles.pageTitle}>{t('financialManagement')}</Text>
         <Pressable style={styles.addButton} onPress={() => router.push('/add-transaction')}>
           <Ionicons name="add" size={24} color={Colors.white} />
         </Pressable>
@@ -61,41 +72,41 @@ export default function AdminFinanceScreen() {
             <View style={[styles.actionIcon, { backgroundColor: '#ECFDF5' }]}>
               <Ionicons name="add-circle" size={24} color={Colors.success} />
             </View>
-            <Text style={styles.actionLabel}>লেনদেন এন্ট্রি</Text>
+            <Text style={styles.actionLabel}>{t('transactionEntry')}</Text>
           </Pressable>
           <Pressable style={({ pressed }) => [styles.actionCard, pressed && { opacity: 0.7 }]} onPress={() => router.push('/admin-settings')}>
             <View style={[styles.actionIcon, { backgroundColor: '#F3E8FF' }]}>
               <Ionicons name="settings" size={24} color="#8B5CF6" />
             </View>
-            <Text style={styles.actionLabel}>সেটিংস</Text>
+            <Text style={styles.actionLabel}>{t('settings')}</Text>
           </Pressable>
         </View>
 
         {pendingLoans.length > 0 && (
           <>
-            <Text style={styles.sectionTitle}>অপেক্ষমাণ ঋণ আবেদন ({pendingLoans.length})</Text>
+            <Text style={styles.sectionTitle}>{t('pendingLoanApplications')} ({pendingLoans.length})</Text>
             {pendingLoans.map(loan => (
               <View key={loan.id} style={styles.loanCard}>
                 <View style={styles.loanHeader}>
-                  <Text style={styles.loanName}>{loan.memberName}</Text>
+                  <Text style={styles.loanName}>{getMemberName(loan.memberId)}</Text>
                   <Text style={styles.loanAmount}>{formatAmount(loan.amount)}</Text>
                 </View>
                 <Text style={styles.loanPurpose}>{loan.purpose}</Text>
-                <Text style={styles.loanMeta}>মেয়াদ: {loan.duration} মাস | আবেদন: {loan.appliedDate}</Text>
+                <Text style={styles.loanMeta}>{t('duration')}: {loan.duration} {t('month')} | {t('applicationDate')}: {loan.appliedDate}</Text>
                 <View style={styles.loanActions}>
                   <Pressable
                     style={({ pressed }) => [styles.approveBtn, pressed && { opacity: 0.7 }]}
-                    onPress={() => handleApprove(loan.id, loan.memberName)}
+                    onPress={() => handleApprove(loan.id, loan.memberId)}
                   >
                     <Ionicons name="checkmark" size={18} color={Colors.white} />
-                    <Text style={styles.approveBtnText}>অনুমোদন</Text>
+                    <Text style={styles.approveBtnText}>{t('approve')}</Text>
                   </Pressable>
                   <Pressable
                     style={({ pressed }) => [styles.rejectBtn, pressed && { opacity: 0.7 }]}
-                    onPress={() => handleReject(loan.id, loan.memberName)}
+                    onPress={() => handleReject(loan.id, loan.memberId)}
                   >
                     <Ionicons name="close" size={18} color={Colors.error} />
-                    <Text style={styles.rejectBtnText}>প্রত্যাখ্যান</Text>
+                    <Text style={styles.rejectBtnText}>{t('reject')}</Text>
                   </Pressable>
                 </View>
               </View>
@@ -103,36 +114,32 @@ export default function AdminFinanceScreen() {
           </>
         )}
 
-        <Text style={styles.sectionTitle}>অনুমোদিত ঋণ ({approvedLoans.length})</Text>
+        <Text style={styles.sectionTitle}>{t('approvedLoans')} ({approvedLoans.length})</Text>
         {approvedLoans.length === 0 ? (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>কোনো অনুমোদিত ঋণ নেই</Text>
+            <Text style={styles.emptyText}>{t('noApprovedLoans')}</Text>
           </View>
         ) : (
           approvedLoans.map(loan => (
             <View key={loan.id} style={styles.approvedCard}>
               <View style={styles.loanHeader}>
-                <Text style={styles.loanName}>{loan.memberName}</Text>
+                <Text style={styles.loanName}>{getMemberName(loan.memberId)}</Text>
                 <Text style={[styles.loanAmount, { color: Colors.success }]}>{formatAmount(loan.amount)}</Text>
               </View>
               <Text style={styles.loanPurpose}>{loan.purpose}</Text>
               <Text style={styles.loanMeta}>
-                কিস্তি: {formatAmount(loan.monthlyInstallment || 0)}/মাস | অনুমোদন: {loan.approvedDate}
+                {t('installment')}: {formatAmount(loan.monthlyInstallment || 0)}/{t('month')} | {t('approvalDate')}: {loan.approvedDate}
               </Text>
             </View>
           ))
         )}
 
-        <Text style={styles.sectionTitle}>সাম্প্রতিক লেনদেন</Text>
+        <Text style={styles.sectionTitle}>{t('recentTransactions')}</Text>
         {recentTx.map(tx => {
-          const getLabel = (t: string) => {
-            const l: Record<string, string> = { deposit: 'জমা', withdrawal: 'উত্তোলন', share: 'শেয়ার', loan_disbursement: 'ঋণ প্রদান', loan_repayment: 'ঋণ আদায়', dividend: 'লভ্যাংশ' };
-            return l[t] || t;
-          };
           return (
             <View key={tx.id} style={styles.txRow}>
               <View style={styles.txInfo}>
-                <Text style={styles.txName}>{tx.memberName}</Text>
+                <Text style={styles.txName}>{getMemberName(tx.memberId)}</Text>
                 <Text style={styles.txType}>{getLabel(tx.type)}</Text>
               </View>
               <Text style={[styles.txAmount, { color: tx.type === 'withdrawal' || tx.type === 'loan_disbursement' ? Colors.error : Colors.success }]}>

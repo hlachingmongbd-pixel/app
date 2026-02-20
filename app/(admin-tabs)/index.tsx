@@ -23,7 +23,7 @@ function StatCard({ icon, label, value, color, bg }: { icon: string; label: stri
 
 export default function AdminDashboard() {
   const insets = useSafeAreaInsets();
-  const { members, transactions, loanApplications, settings } = useData();
+  const { members, transactions, loanApplications, settings, t } = useData();
   const [refreshing, setRefreshing] = React.useState(false);
 
   const activeMembers = members.filter(m => m.role !== 'admin');
@@ -44,21 +44,22 @@ export default function AdminDashboard() {
     setTimeout(() => setRefreshing(false), 800);
   };
 
+  const getMemberName = (id: string) => {
+    const m = members.find(m => m.id === id);
+    return m ? m.name : id;
+  };
+
   const getTypeLabel = (type: string) => {
-    const labels: Record<string, string> = {
-      deposit: 'জমা', withdrawal: 'উত্তোলন', share: 'শেয়ার',
-      loan_disbursement: 'ঋণ প্রদান', loan_repayment: 'ঋণ আদায়', dividend: 'লভ্যাংশ',
-    };
-    return labels[type] || type;
+    return t(type as any) || type;
   };
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + (Platform.OS === 'web' ? 67 : 0) }]}>
       <View style={styles.header}>
-        <Text style={styles.pageTitle}>ড্যাশবোর্ড</Text>
+        <Text style={styles.pageTitle}>{t('dashboard')}</Text>
         <View style={styles.adminBadge}>
           <Ionicons name="shield-checkmark" size={14} color={Colors.primary} />
-          <Text style={styles.adminBadgeText}>অ্যাডমিন</Text>
+          <Text style={styles.adminBadgeText}>{t('admin')}</Text>
         </View>
       </View>
 
@@ -68,45 +69,45 @@ export default function AdminDashboard() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />}
       >
         <View style={styles.statsGrid}>
-          <StatCard icon="people" label="মোট সদস্য" value={`${activeMembers.length} জন`} color="#3B82F6" bg="#EFF6FF" />
-          <StatCard icon="layers" label="শেয়ার মূলধন" value={formatAmount(totalShares * settings.sharePrice)} color="#8B5CF6" bg="#F3E8FF" />
-          <StatCard icon="wallet" label="মোট সঞ্চয়" value={formatAmount(totalSavings)} color={Colors.success} bg="#ECFDF5" />
-          <StatCard icon="cash" label="বিতরণকৃত ঋণ" value={formatAmount(totalLoans)} color={Colors.error} bg="#FEF2F2" />
+          <StatCard icon="people" label={t('totalMembers')} value={`${activeMembers.length} ${t('person')}`} color="#3B82F6" bg="#EFF6FF" />
+          <StatCard icon="layers" label={t('shareCapital')} value={formatAmount(totalShares * settings.sharePrice)} color="#8B5CF6" bg="#F3E8FF" />
+          <StatCard icon="wallet" label={t('totalSavings')} value={formatAmount(totalSavings)} color={Colors.success} bg="#ECFDF5" />
+          <StatCard icon="cash" label={t('disbursedLoans')} value={formatAmount(totalLoans)} color={Colors.error} bg="#FEF2F2" />
         </View>
 
         {pendingLoans.length > 0 && (
           <View style={styles.alertCard}>
             <Ionicons name="alert-circle" size={20} color={Colors.warning} />
-            <Text style={styles.alertText}>{pendingLoans.length}টি ঋণ আবেদন অপেক্ষমাণ</Text>
+            <Text style={styles.alertText}>{pendingLoans.length}{t('pendingLoanApplications')}</Text>
           </View>
         )}
 
         <View style={styles.summaryCard}>
-          <Text style={styles.summaryTitle}>আজকের সারসংক্ষেপ</Text>
+          <Text style={styles.summaryTitle}>{t('todaysSummary')}</Text>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>আজকের লেনদেন</Text>
-            <Text style={styles.summaryValue}>{todayTx.length}টি</Text>
+            <Text style={styles.summaryLabel}>{t('todaysTransactions')}</Text>
+            <Text style={styles.summaryValue}>{todayTx.length}{t('count')}</Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>সক্রিয় সদস্য</Text>
-            <Text style={styles.summaryValue}>{activeMembers.filter(m => m.isActive).length} জন</Text>
+            <Text style={styles.summaryLabel}>{t('activeMembers')}</Text>
+            <Text style={styles.summaryValue}>{activeMembers.filter(m => m.isActive).length} {t('person')}</Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>নিষ্ক্রিয় সদস্য</Text>
-            <Text style={styles.summaryValue}>{activeMembers.filter(m => !m.isActive).length} জন</Text>
+            <Text style={styles.summaryLabel}>{t('inactiveMembers')}</Text>
+            <Text style={styles.summaryValue}>{activeMembers.filter(m => !m.isActive).length} {t('person')}</Text>
           </View>
         </View>
 
-        <Text style={styles.sectionTitle}>সাম্প্রতিক লেনদেন</Text>
+        <Text style={styles.sectionTitle}>{t('recentTransactions')}</Text>
         {recentTx.length === 0 ? (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>কোনো লেনদেন নেই</Text>
+            <Text style={styles.emptyText}>{t('noTransactions')}</Text>
           </View>
         ) : (
           recentTx.map(tx => (
             <View key={tx.id} style={styles.txCard}>
               <View style={styles.txInfo}>
-                <Text style={styles.txName}>{tx.memberName}</Text>
+                <Text style={styles.txName}>{getMemberName(tx.memberId)}</Text>
                 <Text style={styles.txType}>{getTypeLabel(tx.type)} - {tx.description}</Text>
               </View>
               <View style={styles.txRight}>

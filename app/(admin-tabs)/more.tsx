@@ -35,15 +35,23 @@ function MenuItem({ icon, label, color, bg, onPress, badge }: MenuItemProps) {
 
 export default function AdminMoreScreen() {
   const insets = useSafeAreaInsets();
-  const { logout, loanApplications } = useData();
+  const { logout, loanApplications, t } = useData();
 
   const pendingCount = loanApplications.filter(l => l.status === 'pending').length;
 
   const handleLogout = () => {
-    Alert.alert('লগআউট', 'আপনি কি লগআউট করতে চান?', [
-      { text: 'না', style: 'cancel' },
+    if (Platform.OS === 'web') {
+      if (window.confirm(t('logoutConfirm'))) {
+        logout();
+        router.replace('/');
+      }
+      return;
+    }
+
+    Alert.alert(t('logout'), t('logoutConfirm'), [
+      { text: t('no'), style: 'cancel' },
       {
-        text: 'হ্যাঁ',
+        text: t('yes'),
         style: 'destructive',
         onPress: async () => {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -56,29 +64,29 @@ export default function AdminMoreScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + (Platform.OS === 'web' ? 67 : 0) }]}>
-      <Text style={styles.pageTitle}>আরও</Text>
+      <Text style={styles.pageTitle}>{t('more')}</Text>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
-        <Text style={styles.sectionLabel}>সদস্য</Text>
+        <Text style={styles.sectionLabel}>{t('members')}</Text>
         <View style={styles.menuGroup}>
-          <MenuItem icon="person-add" label="নতুন সদস্য যোগ" color="#3B82F6" bg="#EFF6FF" onPress={() => router.push('/add-member')} />
+          <MenuItem icon="person-add" label={t('addNewMember')} color="#3B82F6" bg="#EFF6FF" onPress={() => router.push('/add-member')} />
         </View>
 
-        <Text style={styles.sectionLabel}>নোটিশ ও ইভেন্ট</Text>
+        <Text style={styles.sectionLabel}>{t('notice')} & {t('events')}</Text>
         <View style={styles.menuGroup}>
-          <MenuItem icon="megaphone" label="নোটিশ পোস্ট" color={Colors.accent} bg="#FEF3C7" onPress={() => router.push('/add-notice')} />
-          <MenuItem icon="calendar" label="ইভেন্ট তৈরি" color="#8B5CF6" bg="#F3E8FF" onPress={() => router.push('/add-event')} />
-          <MenuItem icon="list" label="সকল নোটিশ" color={Colors.primary} bg={Colors.primaryLight} onPress={() => router.push('/notices')} />
-          <MenuItem icon="today" label="সভা ও ইভেন্ট" color="#EC4899" bg="#FCE7F3" onPress={() => router.push('/events')} />
+          <MenuItem icon="megaphone" label={t('noticePost')} color={Colors.accent} bg="#FEF3C7" onPress={() => router.push('/add-notice')} />
+          <MenuItem icon="calendar" label={t('createEvent')} color="#8B5CF6" bg="#F3E8FF" onPress={() => router.push('/add-event')} />
+          <MenuItem icon="list" label={t('allNotices')} color={Colors.primary} bg={Colors.primaryLight} onPress={() => router.push('/notices')} />
+          <MenuItem icon="today" label={t('events')} color="#EC4899" bg="#FCE7F3" onPress={() => router.push('/events')} />
         </View>
 
-        <Text style={styles.sectionLabel}>সেটিংস</Text>
+        <Text style={styles.sectionLabel}>{t('settings')}</Text>
         <View style={styles.menuGroup}>
-          <MenuItem icon="settings" label="সুদ ও শেয়ার সেটিংস" color="#6366F1" bg="#EEF2FF" onPress={() => router.push('/admin-settings')} />
+          <MenuItem icon="settings" label={t('interestShareSettings')} color="#6366F1" bg="#EEF2FF" onPress={() => router.push('/admin-settings')} />
         </View>
 
         <Pressable style={({ pressed }) => [styles.logoutButton, pressed && { opacity: 0.7 }]} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={20} color={Colors.error} />
-          <Text style={styles.logoutText}>লগআউট</Text>
+          <Text style={styles.logoutText}>{t('logout')}</Text>
         </Pressable>
       </ScrollView>
     </View>

@@ -7,24 +7,27 @@ import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import Colors from "@/constants/colors";
 
+import { useData } from "@/lib/data-context";
+
 function NativeTabLayout() {
+  const { t } = useData();
   return (
     <NativeTabs>
       <NativeTabs.Trigger name="index">
         <Icon sf={{ default: "house", selected: "house.fill" }} />
-        <Label>হোম</Label>
+        <Label>{t('home')}</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="finance">
         <Icon sf={{ default: "chart.bar", selected: "chart.bar.fill" }} />
-        <Label>আর্থিক</Label>
+        <Label>{t('finance')}</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="transactions">
         <Icon sf={{ default: "list.bullet.rectangle", selected: "list.bullet.rectangle.fill" }} />
-        <Label>লেনদেন</Label>
+        <Label>{t('transactions')}</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="more">
         <Icon sf={{ default: "ellipsis.circle", selected: "ellipsis.circle.fill" }} />
-        <Label>আরও</Label>
+        <Label>{t('more')}</Label>
       </NativeTabs.Trigger>
     </NativeTabs>
   );
@@ -35,6 +38,7 @@ function ClassicTabLayout() {
   const isDark = colorScheme === "dark";
   const isWeb = Platform.OS === "web";
   const isIOS = Platform.OS === "ios";
+  const { t } = useData();
 
   return (
     <Tabs
@@ -62,28 +66,28 @@ function ClassicTabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "হোম",
+          title: t('home'),
           tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="finance"
         options={{
-          title: "আর্থিক",
+          title: t('finance'),
           tabBarIcon: ({ color, size }) => <Ionicons name="bar-chart" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="transactions"
         options={{
-          title: "লেনদেন",
+          title: t('transactions'),
           tabBarIcon: ({ color, size }) => <Ionicons name="receipt" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="more"
         options={{
-          title: "আরও",
+          title: t('more'),
           tabBarIcon: ({ color, size }) => <Ionicons name="ellipsis-horizontal-circle" size={size} color={color} />,
         }}
       />

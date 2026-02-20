@@ -29,15 +29,23 @@ function MenuItem({ icon, label, color, bg, onPress }: MenuItemProps) {
 
 export default function MoreScreen() {
   const insets = useSafeAreaInsets();
-  const { currentUser, logout } = useData();
+  const { currentUser, logout, t } = useData();
 
   if (!currentUser) return null;
 
   const handleLogout = () => {
-    Alert.alert('লগআউট', 'আপনি কি লগআউট করতে চান?', [
-      { text: 'না', style: 'cancel' },
+    if (Platform.OS === 'web') {
+      if (window.confirm(t('logoutConfirm'))) {
+        logout();
+        router.replace('/');
+      }
+      return;
+    }
+
+    Alert.alert(t('logout'), t('logoutConfirm'), [
+      { text: t('no'), style: 'cancel' },
       {
-        text: 'হ্যাঁ',
+        text: t('yes'),
         style: 'destructive',
         onPress: async () => {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -50,7 +58,7 @@ export default function MoreScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + (Platform.OS === 'web' ? 67 : 0) }]}>
-      <Text style={styles.pageTitle}>আরও</Text>
+      <Text style={styles.pageTitle}>{t('more')}</Text>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
         <View style={styles.profileCard}>
           <View style={styles.profileAvatar}>
@@ -58,26 +66,26 @@ export default function MoreScreen() {
           </View>
           <View style={styles.profileInfo}>
             <Text style={styles.profileName}>{currentUser.name}</Text>
-            <Text style={styles.profileId}>সদস্য আইডি: {currentUser.id}</Text>
+            <Text style={styles.profileId}>{t('memberId')}: {currentUser.id}</Text>
           </View>
         </View>
 
-        <Text style={styles.sectionLabel}>অ্যাকাউন্ট</Text>
+        <Text style={styles.sectionLabel}>{t('account')}</Text>
         <View style={styles.menuGroup}>
-          <MenuItem icon="person" label="আমার প্রোফাইল" color="#3B82F6" bg="#EFF6FF" onPress={() => router.push('/profile')} />
-          <MenuItem icon="document-text" label="ঋণের আবেদন" color="#8B5CF6" bg="#F3E8FF" onPress={() => router.push('/loan-apply')} />
+          <MenuItem icon="person" label={t('myProfile')} color="#3B82F6" bg="#EFF6FF" onPress={() => router.push('/profile')} />
+          <MenuItem icon="document-text" label={t('loanApply')} color="#8B5CF6" bg="#F3E8FF" onPress={() => router.push('/loan-apply')} />
         </View>
 
-        <Text style={styles.sectionLabel}>তথ্য</Text>
+        <Text style={styles.sectionLabel}>{t('info')}</Text>
         <View style={styles.menuGroup}>
-          <MenuItem icon="megaphone" label="নোটিশ বোর্ড" color={Colors.accent} bg="#FEF3C7" onPress={() => router.push('/notices')} />
-          <MenuItem icon="calendar" label="সভা ও ইভেন্ট" color="#8B5CF6" bg="#F3E8FF" onPress={() => router.push('/events')} />
-          <MenuItem icon="headset" label="সাপোর্ট" color={Colors.success} bg="#ECFDF5" onPress={() => router.push('/support')} />
+          <MenuItem icon="megaphone" label={t('noticeBoard')} color={Colors.accent} bg="#FEF3C7" onPress={() => router.push('/notices')} />
+          <MenuItem icon="calendar" label={t('events')} color="#8B5CF6" bg="#F3E8FF" onPress={() => router.push('/events')} />
+          <MenuItem icon="headset" label={t('support')} color={Colors.success} bg="#ECFDF5" onPress={() => router.push('/support')} />
         </View>
 
         <Pressable style={({ pressed }) => [styles.logoutButton, pressed && { opacity: 0.7 }]} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={20} color={Colors.error} />
-          <Text style={styles.logoutText}>লগআউট</Text>
+          <Text style={styles.logoutText}>{t('logout')}</Text>
         </Pressable>
       </ScrollView>
     </View>
