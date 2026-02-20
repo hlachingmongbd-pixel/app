@@ -103,7 +103,9 @@ interface DataContextValue {
 
 const DataContext = createContext<DataContextValue | null>(null);
 
-const BASE_URL = 'http://localhost:5001/api';
+const BASE_URL = Platform.OS === 'web'
+  ? (process.env.EXPO_PUBLIC_API_URL || '/api')
+  : (process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5000/api');
 
 const DEFAULT_SETTINGS: Settings = {
   interestRate: 6,

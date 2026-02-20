@@ -6,7 +6,7 @@ import { useData } from '@/lib/data-context';
 import * as Haptics from 'expo-haptics';
 
 export default function AddMemberScreen() {
-  const { addMember, settings } = useData();
+  const { addMember, settings, t } = useData();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
@@ -17,11 +17,11 @@ export default function AddMemberScreen() {
 
   const handleSubmit = async () => {
     if (!name.trim() || !phone.trim() || !address.trim()) {
-      Alert.alert('ত্রুটি', 'নাম, ফোন ও ঠিকানা আবশ্যক');
+      Alert.alert(t('error'), t('errorMissing'));
       return;
     }
     if (phone.trim().length < 11) {
-      Alert.alert('ত্রুটি', 'সঠিক ফোন নম্বর দিন');
+      Alert.alert(t('error'), t('errorInvalid'));
       return;
     }
 
@@ -43,9 +43,9 @@ export default function AddMemberScreen() {
         password: password || '1234',
       });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      Alert.alert('সফল', 'নতুন সদস্য যোগ করা হয়েছে', [{ text: 'ঠিক আছে', onPress: () => router.back() }]);
+      Alert.alert(t('success'), t('addNewMember'), [{ text: t('yes'), onPress: () => router.back() }]);
     } catch {
-      Alert.alert('ত্রুটি', 'সদস্য যোগ করতে ব্যর্থ');
+      Alert.alert(t('error'), t('errorLoginFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -55,33 +55,33 @@ export default function AddMemberScreen() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>সদস্যের নাম *</Text>
-          <TextInput style={styles.input} placeholder="পূর্ণ নাম" placeholderTextColor={Colors.textTertiary} value={name} onChangeText={setName} />
+          <Text style={styles.label}>{t('namePlaceholder')} *</Text>
+          <TextInput style={styles.input} placeholder={t('namePlaceholder')} placeholderTextColor={Colors.textTertiary} value={name} onChangeText={setName} />
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>ফোন নম্বর *</Text>
+          <Text style={styles.label}>{t('phonePlaceholder')} *</Text>
           <TextInput style={styles.input} placeholder="01XXXXXXXXX" placeholderTextColor={Colors.textTertiary} value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>ঠিকানা *</Text>
-          <TextInput style={[styles.input, styles.textArea]} placeholder="সম্পূর্ণ ঠিকানা" placeholderTextColor={Colors.textTertiary} value={address} onChangeText={setAddress} multiline textAlignVertical="top" />
+          <Text style={styles.label}>{t('address')} *</Text>
+          <TextInput style={[styles.input, styles.textArea]} placeholder={t('address')} placeholderTextColor={Colors.textTertiary} value={address} onChangeText={setAddress} multiline textAlignVertical="top" />
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>জাতীয় পরিচয়পত্র নম্বর</Text>
-          <TextInput style={styles.input} placeholder="NID নম্বর" placeholderTextColor={Colors.textTertiary} value={nid} onChangeText={setNid} keyboardType="numeric" />
+          <Text style={styles.label}>NID</Text>
+          <TextInput style={styles.input} placeholder="NID" placeholderTextColor={Colors.textTertiary} value={nid} onChangeText={setNid} keyboardType="numeric" />
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>প্রাথমিক শেয়ার সংখ্যা</Text>
+          <Text style={styles.label}>{t('shareCount')}</Text>
           <TextInput style={styles.input} placeholder="1" placeholderTextColor={Colors.textTertiary} value={initialShares} onChangeText={setInitialShares} keyboardType="numeric" />
-          <Text style={styles.hint}>প্রতি শেয়ার ৳{settings.sharePrice}</Text>
+          <Text style={styles.hint}>{t('sharePrice')} ৳{settings.sharePrice}</Text>
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>পাসওয়ার্ড</Text>
+          <Text style={styles.label}>{t('passwordPlaceholder')}</Text>
           <TextInput style={styles.input} placeholder="1234" placeholderTextColor={Colors.textTertiary} value={password} onChangeText={setPassword} />
         </View>
 
@@ -90,7 +90,7 @@ export default function AddMemberScreen() {
           onPress={handleSubmit}
           disabled={submitting}
         >
-          <Text style={styles.submitText}>{submitting ? 'যোগ হচ্ছে...' : 'সদস্য যোগ করুন'}</Text>
+          <Text style={styles.submitText}>{submitting ? '...' : t('addNewMember')}</Text>
         </Pressable>
       </ScrollView>
     </KeyboardAvoidingView>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet, Platform, ActivityIndicator, KeyboardAvoidingView, ScrollView } from 'react-native';
+import { View, Text, TextInput, Pressable, StyleSheet, Platform, ActivityIndicator, KeyboardAvoidingView, ScrollView, Image } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -72,7 +72,7 @@ export default function LoginScreen() {
 
           <View style={styles.logoContainer}>
             <View style={styles.logoCircle}>
-              <Ionicons name="people" size={40} color={Colors.primary} />
+              <Image source={require('../assets/images/logo.png')} style={styles.logoImage} resizeMode="contain" />
             </View>
           </View>
           <Text style={styles.appTitle}>{t('appTitle')}</Text>
@@ -184,6 +184,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
+  },
+  logoImage: {
+    width: '100%',
+    height: '100%',
   },
   appTitle: {
     fontSize: 22,

@@ -17,17 +17,9 @@ function formatAmount(amount: number): string {
   return '৳' + amount.toLocaleString('bn-BD');
 }
 
-function TransactionItem({ item }: { item: Transaction }) {
+function TransactionItem({ item, t }: { item: Transaction; t: (key: any) => string }) {
   const getTypeLabel = (type: string) => {
-    const labels: Record<string, string> = {
-      deposit: 'জমা',
-      withdrawal: 'উত্তোলন',
-      share: 'শেয়ার',
-      loan_disbursement: 'ঋণ গ্রহণ',
-      loan_repayment: 'ঋণ পরিশোধ',
-      dividend: 'লভ্যাংশ',
-    };
-    return labels[type] || type;
+    return t(type as any);
   };
 
   const getTypeColor = (type: string) => {
@@ -90,7 +82,7 @@ export default function TransactionsScreen() {
       <FlatList
         data={filtered}
         keyExtractor={item => item.id}
-        renderItem={({ item }) => <TransactionItem item={item} />}
+        renderItem={({ item }) => <TransactionItem item={item} t={t} />}
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={

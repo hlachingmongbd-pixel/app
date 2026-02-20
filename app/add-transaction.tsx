@@ -7,14 +7,14 @@ import { useData } from '@/lib/data-context';
 import * as Haptics from 'expo-haptics';
 
 const TX_TYPES = [
-  { key: 'deposit', label: 'জমা', icon: 'arrow-down-circle', color: Colors.success },
-  { key: 'withdrawal', label: 'উত্তোলন', icon: 'arrow-up-circle', color: Colors.error },
-  { key: 'share', label: 'শেয়ার এন্ট্রি', icon: 'layers', color: '#3B82F6' },
-  { key: 'loan_repayment', label: 'ঋণ কিস্তি', icon: 'cash', color: '#8B5CF6' },
+  { key: 'deposit', label: 'deposit', icon: 'arrow-down-circle', color: Colors.success },
+  { key: 'withdrawal', label: 'withdrawal', icon: 'arrow-up-circle', color: Colors.error },
+  { key: 'share', label: 'share', icon: 'layers', color: '#3B82F6' },
+  { key: 'loan_repayment', label: 'loan_repayment', icon: 'cash', color: '#8B5CF6' },
 ];
 
 export default function AddTransactionScreen() {
-  const { members, addTransaction } = useData();
+  const { members, addTransaction, t } = useData();
   const [selectedType, setSelectedType] = useState('deposit');
   const [selectedMemberId, setSelectedMemberId] = useState('');
   const [amount, setAmount] = useState('');
@@ -31,11 +31,11 @@ export default function AddTransactionScreen() {
 
   const handleSubmit = async () => {
     if (!selectedMemberId) {
-      Alert.alert('ত্রুটি', 'সদস্য নির্বাচন করুন');
+      Alert.alert(t('error'), t('noMembersFound'));
       return;
     }
     if (!amount.trim() || isNaN(parseInt(amount)) || parseInt(amount) <= 0) {
-      Alert.alert('ত্রুটি', 'সঠিক পরিমাণ দিন');
+      Alert.alert(t('error'), t('errorInvalid'));
       return;
     }
 
@@ -48,12 +48,12 @@ export default function AddTransactionScreen() {
         type: selectedType as any,
         amount: parseInt(amount),
         date: new Date().toISOString().split('T')[0],
-        description: description.trim() || TX_TYPES.find(t => t.key === selectedType)?.label || '',
+        description: description.trim() || t(TX_TYPES.find(t => t.key === selectedType)?.label as any) || '',
       });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      Alert.alert('সফল', 'লেনদেন রেকর্ড করা হয়েছে', [{ text: 'ঠিক আছে', onPress: () => router.back() }]);
+      Alert.alert(t('success'), t('transactionEntry'), [{ text: t('yes'), onPress: () => router.back() }]);
     } catch {
-      Alert.alert('ত্রুটি', 'লেনদেন রেকর্ড করতে ব্যর্থ');
+      Alert.alert(t('error'), t('errorLoginFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -62,21 +62,21 @@ export default function AddTransactionScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <Text style={styles.sectionLabel}>লেনদেনের ধরন</Text>
+        <Text style={styles.sectionLabel}>{t('recentTransactions')}</Text>
         <View style={styles.typeGrid}>
-          {TX_TYPES.map(t => (
+          {TX_TYPES.map(txT => (
             <Pressable
-              key={t.key}
-              style={[styles.typeCard, selectedType === t.key && { borderColor: t.color, borderWidth: 2, backgroundColor: t.color + '10' }]}
-              onPress={() => setSelectedType(t.key)}
+              key={txT.key}
+              style={[styles.typeCard, selectedType === txT.key && { borderColor: txT.color, borderWidth: 2, backgroundColor: txT.color + '10' }]}
+              onPress={() => setSelectedType(txT.key)}
             >
-              <Ionicons name={t.icon as any} size={22} color={t.color} />
-              <Text style={[styles.typeLabel, selectedType === t.key && { color: t.color }]}>{t.label}</Text>
+              <Ionicons name={txT.icon as any} size={22} color={txT.color} />
+              <Text style={[styles.typeLabel, selectedType === txT.key && { color: txT.color }]}>{t(txT.label as any)}</Text>
             </Pressable>
           ))}
         </View>
 
-        <Text style={styles.sectionLabel}>সদস্য নির্বাচন</Text>
+        <Text style={styles.sectionLabel}>{t('members')}</Text>
         {selectedMember ? (
           <View style={styles.selectedMember}>
             <View style={styles.memberAvatar}>
@@ -96,7 +96,7 @@ export default function AddTransactionScreen() {
               <Ionicons name="search" size={16} color={Colors.textTertiary} />
               <TextInput
                 style={styles.searchInput}
-                placeholder="সদস্য খুঁজুন..."
+                placeholder={t('searchMember')}
                 placeholderTextColor={Colors.textTertiary}
                 value={memberSearch}
                 onChangeText={setMemberSearch}
@@ -118,13 +118,13 @@ export default function AddTransactionScreen() {
         )}
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>পরিমাণ (টাকা)</Text>
+          <Text style={styles.label}>{t('amount')} (৳)</Text>
           <TextInput style={styles.input} placeholder="0" placeholderTextColor={Colors.textTertiary} value={amount} onChangeText={setAmount} keyboardType="numeric" />
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>বিবরণ (ঐচ্ছিক)</Text>
-          <TextInput style={styles.input} placeholder="লেনদেনের বিবরণ" placeholderTextColor={Colors.textTertiary} value={description} onChangeText={setDescription} />
+          <Text style={styles.label}>{t('purpose')} ({t('home')})</Text>
+          <TextInput style={styles.input} placeholder={t('purpose')} placeholderTextColor={Colors.textTertiary} value={description} onChangeText={setDescription} />
         </View>
 
         <Pressable
@@ -132,7 +132,7 @@ export default function AddTransactionScreen() {
           onPress={handleSubmit}
           disabled={submitting}
         >
-          <Text style={styles.submitText}>{submitting ? 'রেকর্ড হচ্ছে...' : 'লেনদেন রেকর্ড করুন'}</Text>
+          <Text style={styles.submitText}>{submitting ? '...' : t('transactionEntry')}</Text>
         </Pressable>
       </ScrollView>
     </KeyboardAvoidingView>

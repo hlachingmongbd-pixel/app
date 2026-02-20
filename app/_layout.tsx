@@ -6,28 +6,29 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { queryClient } from "@/lib/query-client";
-import { DataProvider } from "@/lib/data-context";
+import { DataProvider, useData } from "@/lib/data-context";
 import { useFonts, NotoSansBengali_400Regular, NotoSansBengali_500Medium, NotoSansBengali_600SemiBold, NotoSansBengali_700Bold } from "@expo-google-fonts/noto-sans-bengali";
 
 SplashScreen.preventAutoHideAsync();
 
 function RootLayoutNav() {
+  const { t } = useData();
   return (
-    <Stack screenOptions={{ headerBackTitle: "Back" }}>
+    <Stack screenOptions={{ headerBackTitle: t('home') }}>
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="(user-tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="(admin-tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="loan-apply" options={{ title: "ঋণের আবেদন", headerTintColor: '#0D6B3F' }} />
-      <Stack.Screen name="add-member" options={{ title: "নতুন সদস্য যোগ", headerTintColor: '#0D6B3F' }} />
-      <Stack.Screen name="member-detail" options={{ title: "সদস্য তথ্য", headerTintColor: '#0D6B3F' }} />
-      <Stack.Screen name="notices" options={{ title: "নোটিশ বোর্ড", headerTintColor: '#0D6B3F' }} />
-      <Stack.Screen name="events" options={{ title: "সভা ও ইভেন্ট", headerTintColor: '#0D6B3F' }} />
-      <Stack.Screen name="support" options={{ title: "সাপোর্ট", headerTintColor: '#0D6B3F' }} />
-      <Stack.Screen name="profile" options={{ title: "আমার প্রোফাইল", headerTintColor: '#0D6B3F' }} />
-      <Stack.Screen name="add-notice" options={{ title: "নোটিশ পোস্ট", headerTintColor: '#0D6B3F' }} />
-      <Stack.Screen name="add-event" options={{ title: "ইভেন্ট তৈরি", headerTintColor: '#0D6B3F' }} />
-      <Stack.Screen name="admin-settings" options={{ title: "সেটিংস", headerTintColor: '#0D6B3F' }} />
-      <Stack.Screen name="add-transaction" options={{ title: "লেনদেন এন্ট্রি", headerTintColor: '#0D6B3F' }} />
+      <Stack.Screen name="loan-apply" options={{ title: t('loanApply'), headerTintColor: '#0D6B3F' }} />
+      <Stack.Screen name="add-member" options={{ title: t('addNewMember'), headerTintColor: '#0D6B3F' }} />
+      <Stack.Screen name="member-detail" options={{ title: t('info'), headerTintColor: '#0D6B3F' }} />
+      <Stack.Screen name="notices" options={{ title: t('notice'), headerTintColor: '#0D6B3F' }} />
+      <Stack.Screen name="events" options={{ title: t('events'), headerTintColor: '#0D6B3F' }} />
+      <Stack.Screen name="support" options={{ title: t('support'), headerTintColor: '#0D6B3F' }} />
+      <Stack.Screen name="profile" options={{ title: t('profile'), headerTintColor: '#0D6B3F' }} />
+      <Stack.Screen name="add-notice" options={{ title: t('noticePost'), headerTintColor: '#0D6B3F' }} />
+      <Stack.Screen name="add-event" options={{ title: t('createEvent'), headerTintColor: '#0D6B3F' }} />
+      <Stack.Screen name="admin-settings" options={{ title: t('settings'), headerTintColor: '#0D6B3F' }} />
+      <Stack.Screen name="add-transaction" options={{ title: t('transactionEntry'), headerTintColor: '#0D6B3F' }} />
     </Stack>
   );
 }

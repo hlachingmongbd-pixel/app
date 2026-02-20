@@ -20,14 +20,14 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 
 export default function MemberDetailScreen() {
   const { id } = useLocalSearchParams();
-  const { members, transactions, loanApplications, settings } = useData();
+  const { members, transactions, loanApplications, settings, t } = useData();
 
   const member = members.find(m => m.id === id);
   if (!member) {
     return (
       <View style={styles.center}>
         <Ionicons name="person-outline" size={48} color={Colors.textTertiary} />
-        <Text style={styles.emptyText}>সদস্য পাওয়া যায়নি</Text>
+        <Text style={styles.emptyText}>{t('noMembersFound')}</Text>
       </View>
     );
   }
@@ -42,39 +42,39 @@ export default function MemberDetailScreen() {
           <Ionicons name="person" size={36} color={Colors.primary} />
         </View>
         <Text style={styles.name}>{member.name}</Text>
-        <Text style={styles.memberId}>ID: {member.id}</Text>
+        <Text style={styles.memberId}>{t('memberId')}: {member.id}</Text>
         <View style={[styles.statusBadge, member.isActive ? styles.activeBadge : styles.inactiveBadge]}>
           <Text style={[styles.statusText, member.isActive ? styles.activeText : styles.inactiveText]}>
-            {member.isActive ? 'সক্রিয়' : 'নিষ্ক্রিয়'}
+            {member.isActive ? t('active') : t('inactive')}
           </Text>
         </View>
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>ব্যক্তিগত তথ্য</Text>
-        <InfoRow label="ফোন" value={member.phone} />
-        <InfoRow label="ঠিকানা" value={member.address} />
+        <Text style={styles.cardTitle}>{t('info')}</Text>
+        <InfoRow label={t('phonePlaceholder')} value={member.phone} />
+        <InfoRow label={t('address')} value={member.address} />
         <InfoRow label="NID" value={member.nid || '-'} />
-        <InfoRow label="যোগদানের তারিখ" value={member.joinDate} />
+        <InfoRow label={t('applicationDate')} value={member.joinDate} />
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>আর্থিক তথ্য</Text>
-        <InfoRow label="শেয়ার সংখ্যা" value={`${member.shares} টি`} />
-        <InfoRow label="শেয়ার মূল্য" value={formatAmount(member.shares * settings.sharePrice)} />
-        <InfoRow label="সঞ্চয়" value={formatAmount(member.savings)} />
-        <InfoRow label="ঋণ" value={formatAmount(member.loanBalance)} />
-        <InfoRow label="লভ্যাংশ" value={formatAmount(member.dividend)} />
+        <Text style={styles.cardTitle}>{t('financeInfo')}</Text>
+        <InfoRow label={t('shareCount')} value={`${member.shares} ${t('piece')}`} />
+        <InfoRow label={t('totalShareValue')} value={formatAmount(member.shares * settings.sharePrice)} />
+        <InfoRow label={t('savings')} value={formatAmount(member.savings)} />
+        <InfoRow label={t('loans')} value={formatAmount(member.loanBalance)} />
+        <InfoRow label={t('dividend')} value={formatAmount(member.dividend)} />
       </View>
 
       {memberLoans.length > 0 && (
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>ঋণের তথ্য</Text>
+          <Text style={styles.cardTitle}>{t('loans')}</Text>
           {memberLoans.map(l => (
             <View key={l.id} style={styles.loanItem}>
-              <InfoRow label="উদ্দেশ্য" value={l.purpose} />
-              <InfoRow label="পরিমাণ" value={formatAmount(l.amount)} />
-              <InfoRow label="অবস্থা" value={l.status === 'approved' ? 'অনুমোদিত' : l.status === 'pending' ? 'অপেক্ষমাণ' : 'প্রত্যাখ্যাত'} />
+              <InfoRow label={t('purpose')} value={l.purpose} />
+              <InfoRow label={t('amount')} value={formatAmount(l.amount)} />
+              <InfoRow label={t('processing')} value={t(l.status as any)} />
               {l !== memberLoans[memberLoans.length - 1] && <View style={styles.divider} />}
             </View>
           ))}
@@ -83,12 +83,11 @@ export default function MemberDetailScreen() {
 
       {memberTx.length > 0 && (
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>সাম্প্রতিক লেনদেন</Text>
+          <Text style={styles.cardTitle}>{t('recentTransactions')}</Text>
           {memberTx.map(tx => {
-            const labels: Record<string, string> = { deposit: 'জমা', withdrawal: 'উত্তোলন', share: 'শেয়ার', loan_disbursement: 'ঋণ', loan_repayment: 'কিস্তি', dividend: 'লভ্যাংশ' };
             return (
               <View key={tx.id} style={styles.txRow}>
-                <Text style={styles.txType}>{labels[tx.type] || tx.type}</Text>
+                <Text style={styles.txType}>{t(tx.type as any)}</Text>
                 <Text style={styles.txAmount}>{formatAmount(tx.amount)}</Text>
                 <Text style={styles.txDate}>{tx.date}</Text>
               </View>
