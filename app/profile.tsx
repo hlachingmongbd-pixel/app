@@ -21,7 +21,7 @@ function InfoRow({ icon, label, value }: { icon: string; label: string; value: s
 }
 
 export default function ProfileScreen() {
-  const { currentUser, settings } = useData();
+  const { currentUser, settings, t } = useData();
 
   if (!currentUser) return null;
 
@@ -32,37 +32,37 @@ export default function ProfileScreen() {
           <Ionicons name="person" size={40} color={Colors.primary} />
         </View>
         <Text style={styles.name}>{currentUser.name}</Text>
-        <Text style={styles.memberId}>সদস্য আইডি: {currentUser.id}</Text>
+        <Text style={styles.memberId}>{t('memberId')}: {currentUser.id}</Text>
         <View style={styles.roleBadge}>
-          <Text style={styles.roleText}>{currentUser.role === 'admin' ? 'প্রশাসক' : 'সদস্য'}</Text>
+          <Text style={styles.roleText}>{t(currentUser.role as any)}</Text>
         </View>
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>ব্যক্তিগত তথ্য</Text>
-        <InfoRow icon="call" label="ফোন" value={currentUser.phone} />
-        <InfoRow icon="location" label="ঠিকানা" value={currentUser.address} />
-        <InfoRow icon="card" label="NID" value={currentUser.nid || 'দেওয়া হয়নি'} />
-        <InfoRow icon="calendar" label="যোগদান" value={currentUser.joinDate} />
+        <Text style={styles.cardTitle}>{t('info')}</Text>
+        <InfoRow icon="call" label={t('phonePlaceholder')} value={currentUser.phone} />
+        <InfoRow icon="location" label={t('address')} value={currentUser.address} />
+        <InfoRow icon="card" label="NID" value={currentUser.nid || '-'} />
+        <InfoRow icon="calendar" label={t('home')} value={currentUser.joinDate} />
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>আর্থিক সারসংক্ষেপ</Text>
+        <Text style={styles.cardTitle}>{t('financeInfo')}</Text>
         <View style={styles.financeGrid}>
           <View style={[styles.financeItem, { backgroundColor: '#EFF6FF' }]}>
-            <Text style={styles.financeLabel}>শেয়ার</Text>
+            <Text style={styles.financeLabel}>{t('share')}</Text>
             <Text style={[styles.financeValue, { color: '#3B82F6' }]}>{formatAmount(currentUser.shares * settings.sharePrice)}</Text>
           </View>
           <View style={[styles.financeItem, { backgroundColor: '#ECFDF5' }]}>
-            <Text style={styles.financeLabel}>সঞ্চয়</Text>
+            <Text style={styles.financeLabel}>{t('savings')}</Text>
             <Text style={[styles.financeValue, { color: Colors.success }]}>{formatAmount(currentUser.savings)}</Text>
           </View>
           <View style={[styles.financeItem, { backgroundColor: '#FEF2F2' }]}>
-            <Text style={styles.financeLabel}>ঋণ</Text>
+            <Text style={styles.financeLabel}>{t('loans')}</Text>
             <Text style={[styles.financeValue, { color: Colors.error }]}>{formatAmount(currentUser.loanBalance)}</Text>
           </View>
           <View style={[styles.financeItem, { backgroundColor: '#FFFBEB' }]}>
-            <Text style={styles.financeLabel}>লভ্যাংশ</Text>
+            <Text style={styles.financeLabel}>{t('dividend')}</Text>
             <Text style={[styles.financeValue, { color: Colors.accent }]}>{formatAmount(currentUser.dividend)}</Text>
           </View>
         </View>

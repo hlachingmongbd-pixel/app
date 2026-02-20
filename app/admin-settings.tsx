@@ -7,7 +7,7 @@ import { useData } from '@/lib/data-context';
 import * as Haptics from 'expo-haptics';
 
 export default function AdminSettingsScreen() {
-  const { settings, updateSettings } = useData();
+  const { settings, updateSettings, t } = useData();
   const [interestRate, setInterestRate] = useState(settings.interestRate.toString());
   const [sharePrice, setSharePrice] = useState(settings.sharePrice.toString());
   const [maxLoan, setMaxLoan] = useState(settings.maxLoanAmount.toString());
@@ -21,7 +21,7 @@ export default function AdminSettingsScreen() {
     const lr = parseFloat(loanRate);
 
     if (isNaN(ir) || isNaN(sp) || isNaN(ml) || isNaN(lr)) {
-      Alert.alert('ত্রুটি', 'সকল মান সঠিকভাবে দিন');
+      Alert.alert(t('error'), t('errorInvalid'));
       return;
     }
 
@@ -34,9 +34,9 @@ export default function AdminSettingsScreen() {
         loanInterestRate: lr,
       });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      Alert.alert('সফল', 'সেটিংস আপডেট করা হয়েছে', [{ text: 'ঠিক আছে', onPress: () => router.back() }]);
+      Alert.alert(t('success'), t('successSettings'), [{ text: t('yes'), onPress: () => router.back() }]);
     } catch {
-      Alert.alert('ত্রুটি', 'সেটিংস আপডেট করতে ব্যর্থ');
+      Alert.alert(t('error'), t('errorLoginFailed'));
     } finally {
       setSaving(false);
     }
@@ -48,16 +48,16 @@ export default function AdminSettingsScreen() {
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Ionicons name="trending-up" size={20} color={Colors.primary} />
-            <Text style={styles.cardTitle}>সুদের হার সেটিংস</Text>
+            <Text style={styles.cardTitle}>{t('interestRateSettings')}</Text>
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>সঞ্চয় সুদের হার (%)</Text>
+            <Text style={styles.label}>{t('savingInterestRate')}</Text>
             <TextInput style={styles.input} value={interestRate} onChangeText={setInterestRate} keyboardType="decimal-pad" />
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>ঋণ সুদের হার (%)</Text>
+            <Text style={styles.label}>{t('loanInterestRate')} (%)</Text>
             <TextInput style={styles.input} value={loanRate} onChangeText={setLoanRate} keyboardType="decimal-pad" />
           </View>
         </View>
@@ -65,11 +65,11 @@ export default function AdminSettingsScreen() {
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Ionicons name="layers" size={20} color="#8B5CF6" />
-            <Text style={styles.cardTitle}>শেয়ার সেটিংস</Text>
+            <Text style={styles.cardTitle}>{t('shareSettings')}</Text>
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>প্রতি শেয়ারের মূল্য (টাকা)</Text>
+            <Text style={styles.label}>{t('perSharePrice')} (৳)</Text>
             <TextInput style={styles.input} value={sharePrice} onChangeText={setSharePrice} keyboardType="numeric" />
           </View>
         </View>
@@ -77,11 +77,11 @@ export default function AdminSettingsScreen() {
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Ionicons name="cash" size={20} color={Colors.error} />
-            <Text style={styles.cardTitle}>ঋণ সেটিংস</Text>
+            <Text style={styles.cardTitle}>{t('loanSettings')}</Text>
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>সর্বোচ্চ ঋণের পরিমাণ (টাকা)</Text>
+            <Text style={styles.label}>{t('maxLoanAmount')} (৳)</Text>
             <TextInput style={styles.input} value={maxLoan} onChangeText={setMaxLoan} keyboardType="numeric" />
           </View>
         </View>
@@ -91,7 +91,7 @@ export default function AdminSettingsScreen() {
           onPress={handleSave}
           disabled={saving}
         >
-          <Text style={styles.saveText}>{saving ? 'সংরক্ষণ হচ্ছে...' : 'সংরক্ষণ করুন'}</Text>
+          <Text style={styles.saveText}>{saving ? '...' : t('saveSettings')}</Text>
         </Pressable>
       </ScrollView>
     </KeyboardAvoidingView>

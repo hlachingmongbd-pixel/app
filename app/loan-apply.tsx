@@ -7,7 +7,7 @@ import { useData } from '@/lib/data-context';
 import * as Haptics from 'expo-haptics';
 
 export default function LoanApplyScreen() {
-  const { currentUser, applyForLoan, settings } = useData();
+  const { currentUser, applyForLoan, settings, t } = useData();
   const [amount, setAmount] = useState('');
   const [purpose, setPurpose] = useState('');
   const [duration, setDuration] = useState('');
@@ -17,21 +17,21 @@ export default function LoanApplyScreen() {
 
   const handleSubmit = async () => {
     if (!amount.trim() || !purpose.trim() || !duration.trim()) {
-      Alert.alert('ত্রুটি', 'সকল তথ্য পূরণ করুন');
+      Alert.alert(t('error'), t('errorEmpty'));
       return;
     }
     const amountNum = parseInt(amount);
     const durationNum = parseInt(duration);
     if (isNaN(amountNum) || amountNum <= 0) {
-      Alert.alert('ত্রুটি', 'সঠিক পরিমাণ দিন');
+      Alert.alert(t('error'), t('errorInvalid'));
       return;
     }
     if (amountNum > settings.maxLoanAmount) {
-      Alert.alert('ত্রুটি', `সর্বোচ্চ ঋণের পরিমাণ ৳${settings.maxLoanAmount.toLocaleString()}`);
+      Alert.alert(t('error'), `${t('maxLoanAmount')} ৳${settings.maxLoanAmount.toLocaleString()}`);
       return;
     }
     if (isNaN(durationNum) || durationNum <= 0 || durationNum > 60) {
-      Alert.alert('ত্রুটি', 'মেয়াদ ১-৬০ মাসের মধ্যে হতে হবে');
+      Alert.alert(t('error'), t('duration'));
       return;
     }
 
@@ -45,9 +45,9 @@ export default function LoanApplyScreen() {
         duration: durationNum,
       });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      Alert.alert('সফল', 'ঋণের আবেদন জমা হয়েছে', [{ text: 'ঠিক আছে', onPress: () => router.back() }]);
+      Alert.alert(t('success'), t('successLoan'), [{ text: t('yes'), onPress: () => router.back() }]);
     } catch {
-      Alert.alert('ত্রুটি', 'আবেদন জমা দিতে ব্যর্থ');
+      Alert.alert(t('error'), t('errorLoginFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -63,15 +63,15 @@ export default function LoanApplyScreen() {
         <View style={styles.infoCard}>
           <Ionicons name="information-circle" size={20} color={Colors.info} />
           <Text style={styles.infoText}>
-            সর্বোচ্চ ঋণ: ৳{settings.maxLoanAmount.toLocaleString()} | সুদের হার: {settings.loanInterestRate}%
+            {t('maxLoanAmount')}: ৳{settings.maxLoanAmount.toLocaleString()} | {t('loanInterestRate')}: {settings.loanInterestRate}%
           </Text>
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>ঋণের পরিমাণ (টাকা)</Text>
+          <Text style={styles.label}>{t('loanAmount')} (৳)</Text>
           <TextInput
             style={styles.input}
-            placeholder="যেমন: 50000"
+            placeholder="50000"
             placeholderTextColor={Colors.textTertiary}
             value={amount}
             onChangeText={setAmount}
@@ -80,10 +80,10 @@ export default function LoanApplyScreen() {
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>ঋণের উদ্দেশ্য</Text>
+          <Text style={styles.label}>{t('loanPurpose')}</Text>
           <TextInput
             style={[styles.input, styles.textArea]}
-            placeholder="ঋণের কারণ লিখুন"
+            placeholder={t('loanPurpose')}
             placeholderTextColor={Colors.textTertiary}
             value={purpose}
             onChangeText={setPurpose}
@@ -94,10 +94,10 @@ export default function LoanApplyScreen() {
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>মেয়াদ (মাস)</Text>
+          <Text style={styles.label}>{t('duration')} ({t('month')})</Text>
           <TextInput
             style={styles.input}
-            placeholder="যেমন: 12"
+            placeholder="12"
             placeholderTextColor={Colors.textTertiary}
             value={duration}
             onChangeText={setDuration}
@@ -107,7 +107,7 @@ export default function LoanApplyScreen() {
 
         {estimatedInstallment > 0 && !isNaN(estimatedInstallment) && (
           <View style={styles.estimateCard}>
-            <Text style={styles.estimateTitle}>আনুমানিক মাসিক কিস্তি</Text>
+            <Text style={styles.estimateTitle}>{t('estimatedInstallment')}</Text>
             <Text style={styles.estimateAmount}>৳{estimatedInstallment.toLocaleString()}</Text>
           </View>
         )}
@@ -117,7 +117,7 @@ export default function LoanApplyScreen() {
           onPress={handleSubmit}
           disabled={submitting}
         >
-          <Text style={styles.submitText}>{submitting ? 'জমা হচ্ছে...' : 'আবেদন জমা দিন'}</Text>
+          <Text style={styles.submitText}>{submitting ? '...' : t('loanApply')}</Text>
         </Pressable>
       </ScrollView>
     </KeyboardAvoidingView>

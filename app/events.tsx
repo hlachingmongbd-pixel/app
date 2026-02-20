@@ -4,19 +4,29 @@ import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/colors';
 import { useData, MeetingEvent } from '@/lib/data-context';
 
-function EventItem({ item }: { item: MeetingEvent }) {
+function EventItem({ item, t }: { item: MeetingEvent; t: (key: any) => string }) {
   const isMeeting = item.type === 'meeting';
+
+  const getMonthAbbr = (m: string) => {
+    const months: Record<string, any> = {
+      '01': 'jan', '02': 'feb', '03': 'mar', '04': 'apr',
+      '05': 'may', '06': 'jun', '07': 'jul', '08': 'aug',
+      '09': 'sep', '10': 'oct', '11': 'nov', '12': 'dec',
+    };
+    return t(months[m] || m);
+  };
+
   return (
     <View style={styles.card}>
       <View style={styles.dateBox}>
         <Text style={styles.dateDay}>{item.date.split('-')[2]}</Text>
-        <Text style={styles.dateMonth}>{getMonthBn(item.date.split('-')[1])}</Text>
+        <Text style={styles.dateMonth}>{getMonthAbbr(item.date.split('-')[1])}</Text>
       </View>
       <View style={styles.cardContent}>
         <View style={styles.typeBadge}>
           <Ionicons name={isMeeting ? 'people' : 'calendar'} size={12} color={isMeeting ? Colors.info : '#8B5CF6'} />
           <Text style={[styles.typeText, { color: isMeeting ? Colors.info : '#8B5CF6' }]}>
-            {isMeeting ? 'সভা' : 'ইভেন্ট'}
+            {t(item.type as any)}
           </Text>
         </View>
         <Text style={styles.title}>{item.title}</Text>
@@ -32,30 +42,21 @@ function EventItem({ item }: { item: MeetingEvent }) {
   );
 }
 
-function getMonthBn(m: string): string {
-  const months: Record<string, string> = {
-    '01': 'জানু', '02': 'ফেব্রু', '03': 'মার্চ', '04': 'এপ্রি',
-    '05': 'মে', '06': 'জুন', '07': 'জুলা', '08': 'আগ',
-    '09': 'সেপ্টে', '10': 'অক্টো', '11': 'নভে', '12': 'ডিসে',
-  };
-  return months[m] || m;
-}
-
 export default function EventsScreen() {
-  const { events } = useData();
+  const { events, t } = useData();
 
   return (
     <View style={styles.container}>
       <FlatList
         data={events}
         keyExtractor={item => item.id}
-        renderItem={({ item }) => <EventItem item={item} />}
+        renderItem={({ item }) => <EventItem item={item} t={t} />}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <Ionicons name="calendar-outline" size={48} color={Colors.textTertiary} />
-            <Text style={styles.emptyText}>কোনো ইভেন্ট নেই</Text>
+            <Text style={styles.emptyText}>{t('noEvents')}</Text>
           </View>
         }
       />

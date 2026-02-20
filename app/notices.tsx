@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/colors';
 import { useData, Notice } from '@/lib/data-context';
 
-function NoticeItem({ item }: { item: Notice }) {
+function NoticeItem({ item, t }: { item: Notice; t: (key: any) => string }) {
   return (
     <View style={[styles.card, item.isUrgent && styles.urgentCard]}>
       <View style={styles.cardHeader}>
@@ -17,7 +17,7 @@ function NoticeItem({ item }: { item: Notice }) {
         </View>
         {item.isUrgent && (
           <View style={styles.urgentBadge}>
-            <Text style={styles.urgentBadgeText}>জরুরী</Text>
+            <Text style={styles.urgentBadgeText}>{t('urgent')}</Text>
           </View>
         )}
       </View>
@@ -27,20 +27,20 @@ function NoticeItem({ item }: { item: Notice }) {
 }
 
 export default function NoticesScreen() {
-  const { notices } = useData();
+  const { notices, t } = useData();
 
   return (
     <View style={styles.container}>
       <FlatList
         data={notices}
         keyExtractor={item => item.id}
-        renderItem={({ item }) => <NoticeItem item={item} />}
+        renderItem={({ item }) => <NoticeItem item={item} t={t} />}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <Ionicons name="megaphone-outline" size={48} color={Colors.textTertiary} />
-            <Text style={styles.emptyText}>কোনো নোটিশ নেই</Text>
+            <Text style={styles.emptyText}>{t('noNotices')}</Text>
           </View>
         }
       />

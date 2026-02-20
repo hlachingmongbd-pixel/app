@@ -3,23 +3,25 @@ import { View, Text, TextInput, Pressable, ScrollView, StyleSheet, Alert, Linkin
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/colors';
 import * as Haptics from 'expo-haptics';
+import { useData } from '@/lib/data-context';
 
 export default function SupportScreen() {
+  const { t } = useData();
   const [message, setMessage] = useState('');
 
   const handleCall = () => {
     Linking.openURL('tel:+8801700000000').catch(() => {
-      Alert.alert('ত্রুটি', 'কল করা যাচ্ছে না');
+      Alert.alert(t('error'), t('errorLoginFailed'));
     });
   };
 
   const handleSend = () => {
     if (!message.trim()) {
-      Alert.alert('ত্রুটি', 'মেসেজ লিখুন');
+      Alert.alert(t('error'), t('errorEmpty'));
       return;
     }
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    Alert.alert('সফল', 'আপনার মেসেজ পাঠানো হয়েছে। শীঘ্রই উত্তর দেওয়া হবে।');
+    Alert.alert(t('success'), t('infoSupport'));
     setMessage('');
   };
 
@@ -31,13 +33,13 @@ export default function SupportScreen() {
             <Ionicons name="call" size={20} color={Colors.success} />
           </View>
           <View style={styles.cardHeaderInfo}>
-            <Text style={styles.cardTitle}>হেল্পলাইন</Text>
-            <Text style={styles.cardSubtitle}>সকাল ৯টা - বিকাল ৫টা</Text>
+            <Text style={styles.cardTitle}>{t('helpline')}</Text>
+            <Text style={styles.cardSubtitle}>9 AM - 5 PM</Text>
           </View>
         </View>
         <Pressable style={({ pressed }) => [styles.callButton, pressed && { opacity: 0.7 }]} onPress={handleCall}>
           <Ionicons name="call" size={18} color={Colors.white} />
-          <Text style={styles.callButtonText}>কল করুন</Text>
+          <Text style={styles.callButtonText}>{t('callUs')}</Text>
         </Pressable>
       </View>
 
@@ -46,11 +48,11 @@ export default function SupportScreen() {
           <View style={[styles.iconCircle, { backgroundColor: '#EFF6FF' }]}>
             <Ionicons name="chatbubble-ellipses" size={20} color={Colors.info} />
           </View>
-          <Text style={styles.cardTitle}>মেসেজ পাঠান</Text>
+          <Text style={styles.cardTitle}>{t('messageUs')}</Text>
         </View>
         <TextInput
           style={styles.messageInput}
-          placeholder="আপনার সমস্যা বা প্রশ্ন লিখুন..."
+          placeholder={t('messageUs') + '...'}
           placeholderTextColor={Colors.textTertiary}
           value={message}
           onChangeText={setMessage}
@@ -59,31 +61,31 @@ export default function SupportScreen() {
           textAlignVertical="top"
         />
         <Pressable style={({ pressed }) => [styles.sendButton, pressed && { opacity: 0.85 }]} onPress={handleSend}>
-          <Text style={styles.sendButtonText}>পাঠান</Text>
+          <Text style={styles.sendButtonText}>{t('yes')}</Text>
         </Pressable>
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>সমিতির নিয়মকানুন</Text>
+        <Text style={styles.cardTitle}>{t('rules')}</Text>
         <View style={styles.ruleItem}>
           <Ionicons name="chevron-forward-circle" size={16} color={Colors.primary} />
-          <Text style={styles.ruleText}>প্রতি মাসে নির্ধারিত সঞ্চয় জমা দিতে হবে</Text>
+          <Text style={styles.ruleText}>{t('rule1')}</Text>
         </View>
         <View style={styles.ruleItem}>
           <Ionicons name="chevron-forward-circle" size={16} color={Colors.primary} />
-          <Text style={styles.ruleText}>ঋণের কিস্তি সময়মতো পরিশোধ করতে হবে</Text>
+          <Text style={styles.ruleText}>{t('rule2')}</Text>
         </View>
         <View style={styles.ruleItem}>
           <Ionicons name="chevron-forward-circle" size={16} color={Colors.primary} />
-          <Text style={styles.ruleText}>সভায় নিয়মিত উপস্থিত থাকতে হবে</Text>
+          <Text style={styles.ruleText}>{t('rule3')}</Text>
         </View>
         <View style={styles.ruleItem}>
           <Ionicons name="chevron-forward-circle" size={16} color={Colors.primary} />
-          <Text style={styles.ruleText}>সমিতির গোপনীয়তা রক্ষা করতে হবে</Text>
+          <Text style={styles.ruleText}>{t('rule4')}</Text>
         </View>
         <View style={styles.ruleItem}>
           <Ionicons name="chevron-forward-circle" size={16} color={Colors.primary} />
-          <Text style={styles.ruleText}>সদস্য পদ হস্তান্তরযোগ্য নয়</Text>
+          <Text style={styles.ruleText}>{t('rule5')}</Text>
         </View>
       </View>
     </ScrollView>

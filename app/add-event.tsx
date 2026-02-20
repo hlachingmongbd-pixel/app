@@ -7,7 +7,7 @@ import { useData } from '@/lib/data-context';
 import * as Haptics from 'expo-haptics';
 
 export default function AddEventScreen() {
-  const { addEvent } = useData();
+  const { addEvent, t } = useData();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
@@ -18,7 +18,7 @@ export default function AddEventScreen() {
 
   const handleSubmit = async () => {
     if (!title.trim() || !date.trim() || !time.trim() || !venue.trim()) {
-      Alert.alert('ত্রুটি', 'শিরোনাম, তারিখ, সময় ও স্থান আবশ্যক');
+      Alert.alert(t('error'), t('errorEmpty'));
       return;
     }
     setSubmitting(true);
@@ -32,9 +32,9 @@ export default function AddEventScreen() {
         type,
       });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      Alert.alert('সফল', 'ইভেন্ট তৈরি করা হয়েছে', [{ text: 'ঠিক আছে', onPress: () => router.back() }]);
+      Alert.alert(t('success'), t('successEvent'), [{ text: t('yes'), onPress: () => router.back() }]);
     } catch {
-      Alert.alert('ত্রুটি', 'ইভেন্ট তৈরি করতে ব্যর্থ');
+      Alert.alert(t('error'), t('errorLoginFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -49,40 +49,40 @@ export default function AddEventScreen() {
             onPress={() => setType('meeting')}
           >
             <Ionicons name="people" size={18} color={type === 'meeting' ? Colors.white : Colors.textSecondary} />
-            <Text style={[styles.typeText, type === 'meeting' && styles.typeTextActive]}>সভা</Text>
+            <Text style={[styles.typeText, type === 'meeting' && styles.typeTextActive]}>{t('meeting')}</Text>
           </Pressable>
           <Pressable
             style={[styles.typeButton, type === 'event' && styles.typeActive]}
             onPress={() => setType('event')}
           >
             <Ionicons name="calendar" size={18} color={type === 'event' ? Colors.white : Colors.textSecondary} />
-            <Text style={[styles.typeText, type === 'event' && styles.typeTextActive]}>ইভেন্ট</Text>
+            <Text style={[styles.typeText, type === 'event' && styles.typeTextActive]}>{t('event')}</Text>
           </Pressable>
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>শিরোনাম *</Text>
-          <TextInput style={styles.input} placeholder="ইভেন্টের নাম" placeholderTextColor={Colors.textTertiary} value={title} onChangeText={setTitle} />
+          <Text style={styles.label}>{t('title')} *</Text>
+          <TextInput style={styles.input} placeholder={t('title')} placeholderTextColor={Colors.textTertiary} value={title} onChangeText={setTitle} />
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>বিবরণ</Text>
-          <TextInput style={[styles.input, styles.textArea]} placeholder="বিস্তারিত বিবরণ" placeholderTextColor={Colors.textTertiary} value={description} onChangeText={setDescription} multiline textAlignVertical="top" />
+          <Text style={styles.label}>{t('info')}</Text>
+          <TextInput style={[styles.input, styles.textArea]} placeholder={t('info')} placeholderTextColor={Colors.textTertiary} value={description} onChangeText={setDescription} multiline textAlignVertical="top" />
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>তারিখ * (YYYY-MM-DD)</Text>
+          <Text style={styles.label}>{t('date')} * (YYYY-MM-DD)</Text>
           <TextInput style={styles.input} placeholder="2025-03-15" placeholderTextColor={Colors.textTertiary} value={date} onChangeText={setDate} />
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>সময় *</Text>
+          <Text style={styles.label}>{t('time')} *</Text>
           <TextInput style={styles.input} placeholder="02:00 PM" placeholderTextColor={Colors.textTertiary} value={time} onChangeText={setTime} />
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>স্থান *</Text>
-          <TextInput style={styles.input} placeholder="সভার স্থান" placeholderTextColor={Colors.textTertiary} value={venue} onChangeText={setVenue} />
+          <Text style={styles.label}>{t('venue')} *</Text>
+          <TextInput style={styles.input} placeholder={t('venue')} placeholderTextColor={Colors.textTertiary} value={venue} onChangeText={setVenue} />
         </View>
 
         <Pressable
@@ -90,7 +90,7 @@ export default function AddEventScreen() {
           onPress={handleSubmit}
           disabled={submitting}
         >
-          <Text style={styles.submitText}>{submitting ? 'তৈরি হচ্ছে...' : 'ইভেন্ট তৈরি করুন'}</Text>
+          <Text style={styles.submitText}>{submitting ? '...' : t('addEvent')}</Text>
         </Pressable>
       </ScrollView>
     </KeyboardAvoidingView>
